@@ -1,100 +1,256 @@
-# Jotica Bible - Biblical LoRA Training
+<div align="center">
 
-Un sistema completo para entrenar modelos LoRA (Low-Rank Adaptation) en textos bíblicos usando la Reina-Valera 1909. Este proyecto está diseñado para funcionar en entornos SimplePod Docker con aceleración GPU.
+# 🕊️ Jotica - Biblical LoRA Training Platform
 
-## Estructura del Proyecto
+*Advanced AI training system for biblical texts using LoRA fine-tuning*
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
+[![GPU](https://img.shields.io/badge/CUDA-12.1+-green.svg?logo=nvidia)](https://developer.nvidia.com/cuda-toolkit)
+
+[🚀 Quick Start](#-quick-start-on-simplepod) • [📖 Documentation](#-project-structure) • [⚡ Features](#-key-features) • [🤝 Contributing](#-contributing)
+
+</div>
+
+---
+
+## 🎯 Overview
+
+**Jotica** is a comprehensive system for training **LoRA (Low-Rank Adaptation)** models on biblical texts, specifically designed for the **Reina-Valera 1909** Spanish Bible. Built for **SimplePod Docker environments** with **GPU acceleration**, it enables efficient fine-tuning of large language models for theological and biblical applications.
+
+### 🌟 Key Features
+
+- 🔥 **LoRA Fine-tuning** - Parameter-efficient training with PEFT
+- 🐳 **SimplePod Ready** - Optimized for Docker + GPU environments  
+- 📚 **Biblical Focus** - Specialized for Reina-Valera 1909 texts
+- 🎯 **Alpaca Format** - Industry-standard instruction formatting
+- ☁️ **Supabase Integration** - Vector storage and model checkpoints
+- ⚡ **OpenAI Embeddings** - High-quality semantic representations
+- 📊 **Automated Pipeline** - From ingestion to deployment
+
+## 🏗️ Project Structure
 
 ```
-jotica-bible/
-├─ README.md
-├─ requirements.txt
-├─ .env.example
-├─ Dockerfile
-├─ scripts/
-│  ├─ bootstrap_simplepod.sh
-│  ├─ ingest_bible.sh
-│  └─ train_lora.sh
-├─ data/
-│  ├─ bible_rva1909/            # TXT/JSON por versículo
-│  └─ refs/                     # Comentarios/TSK/Diccionarios
-├─ datasets/
-│  └─ bible_qa.jsonl            # Q&A curados
-└─ src/
-   ├─ config.py
-   ├─ utils/
-   │  ├─ supa.py
-   │  ├─ emb.py
-   │  └─ io_utils.py
-   ├─ ingest/
-   │  ├─ parse_bible.py
-   │  ├─ parse_refs.py
-   │  └─ upsert_supabase.py
-   ├─ train/
-   │  ├─ formatters.py
-   │  ├─ lora_runner.py
-   │  └─ eval_smoke.py
-   └─ inference/
-      └─ generate.py
+jotica/
+├── 🔧 config/
+│   ├── requirements.txt      # Python dependencies
+│   ├── .env.example         # Environment template
+│   └── Dockerfile           # SimplePod container
+├── 🚀 scripts/
+│   ├── bootstrap_simplepod.sh   # One-time setup
+│   ├── ingest_bible.sh         # Data processing
+│   └── train_lora.sh           # Training pipeline
+├── 📂 data/
+│   ├── bible_rva1909/          # Raw biblical texts
+│   └── refs/                   # Reference materials
+├── 🎓 datasets/
+│   └── bible_qa.jsonl          # Curated Q&A training data
+└── 💻 src/
+    ├── config.py               # Configuration management
+    ├── utils/                  # Core utilities
+    │   ├── supa.py            # Supabase client
+    │   ├── emb.py             # Embedding generation
+    │   └── io_utils.py        # File I/O helpers
+    ├── ingest/                 # Data processing
+    │   ├── parse_bible.py     # Bible text parser
+    │   ├── parse_refs.py      # Reference processing
+    │   └── upsert_supabase.py # Vector database
+    ├── train/                  # Training modules
+    │   ├── formatters.py      # Alpaca formatting
+    │   ├── lora_runner.py     # LoRA training engine
+    │   └── eval_smoke.py      # Model evaluation
+    └── inference/              # Model serving
+        └── generate.py        # Text generation
 ```
 
-## Inicio Rápido en SimplePod
+## 🚀 Quick Start on SimplePod
 
-### 1. Configuración del Entorno
+### Prerequisites
+- 🐳 **SimplePod** environment with GPU support
+- 🔑 **API Keys**: OpenAI, Supabase
+- 💾 **Storage**: ~10GB for models and data
 
+### 1️⃣ Clone & Setup
 ```bash
-# Copiar y configurar variables de entorno
+# Clone the repository
+git clone https://github.com/SwStudioAI/jotica.git
+cd jotica
+
+# Configure environment
 cp .env.example .env
-# Editar .env con tus claves API
+# ✏️ Edit .env with your API keys
 ```
 
-### 2. Bootstrap Inicial
-
+### 2️⃣ Bootstrap Environment
 ```bash
-# Ejecutar una sola vez en SimplePod
+# One-time setup in SimplePod
 bash scripts/bootstrap_simplepod.sh
 ```
 
-### 3. Ingesta de Datos
-
+### 3️⃣ Data Preparation
 ```bash
-# Procesar textos bíblicos y crear embeddings
+# Add your biblical texts to data/bible_rva1909/
+# Add reference materials to data/refs/
+
+# Process and create embeddings
 bash scripts/ingest_bible.sh
 ```
 
-### 4. Entrenar LoRA
-
+### 4️⃣ Train LoRA Model
 ```bash
-# Iniciar entrenamiento LoRA
+# Start training pipeline
 bash scripts/train_lora.sh
 ```
 
-## Checkpoints y Almacenamiento
-
-Los checkpoints se guardan en `/workspace/jotica/checkpoints` y se suben automáticamente a **Supabase Storage** en el bucket configurado (`jotica-models` por defecto).
-
-## Variables de Entorno
-
-Todas las variables importantes están definidas en `.env.example`. Las principales:
-
-- `OPENAI_API_KEY`: Para generar embeddings
-- `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE`: Para almacenar vectores y checkpoints
-- `BASE_MODEL`: Modelo base (por defecto `meta-llama/Llama-3-8B-Instruct`)
-- `OUTPUT_DIR`: Directorio de checkpoints
-- Parámetros de entrenamiento: `EPOCHS`, `BATCH_SIZE`, `LR`, etc.
-
-## Datos de Entrada
-
-1. **bible_rva1909/**: Coloca aquí los textos de la RVA 1909 (formato a implementar en `parse_bible.py`)
-2. **refs/**: Comentarios, diccionarios y materiales de referencia en formato TXT
-3. **datasets/bible_qa.jsonl**: Dataset de preguntas y respuestas currado para el entrenamiento
-
-## Testing del Modelo
-
-Una vez entrenado, puedes probar el modelo con:
-
+### 5️⃣ Test Your Model
 ```bash
-python -m src.inference.generate "Explica Juan 1:1 con citas."
+# Interactive testing
+python -m src.inference.generate "Explica Juan 1:1 con citas bíblicas"
 ```
+
+## ⚙️ Configuration
+
+### Environment Variables (.env)
+```bash
+# 🔑 API Keys
+OPENAI_API_KEY=your_openai_key_here
+SUPABASE_URL=your_supabase_url
+SUPABASE_SERVICE_ROLE=your_service_key
+
+# ☁️ Storage
+SUPABASE_BUCKET=jotica-models        # Model checkpoints
+SUPABASE_DATA_BUCKET=jotica-data     # Optional corpus storage
+
+# 🤖 Model Configuration  
+BASE_MODEL=meta-llama/Llama-3-8B-Instruct
+RUN_NAME=jotica-bible-lora-001
+OUTPUT_DIR=/workspace/jotica/checkpoints
+
+# 🎯 Training Parameters
+EPOCHS=2
+BATCH_SIZE=2
+LR=2e-4
+SAVE_STEPS=200
+SAVE_TOTAL=3
+MAX_SEQ_LEN=1024
+```
+
+### LoRA Configuration
+```python
+LoraConfig(
+    r=16,                    # Low-rank dimension
+    lora_alpha=32,          # Scaling parameter
+    lora_dropout=0.05,      # Dropout rate
+    target_modules=["q_proj", "v_proj"]  # Target attention layers
+)
+```
+
+## 📊 Training Pipeline
+
+```mermaid
+graph LR
+    A[📚 Raw Texts] --> B[🔄 Parse Bible]
+    B --> C[🧠 Generate Embeddings]
+    C --> D[☁️ Supabase Storage]
+    D --> E[🎓 Format Training Data]
+    E --> F[🔥 LoRA Training]
+    F --> G[💾 Save Checkpoint]
+    G --> H[☁️ Upload to Storage]
+```
+
+## 🎯 Model Architecture
+
+- **Base Model**: Llama-3-8B-Instruct
+- **Fine-tuning**: LoRA (Low-Rank Adaptation)
+- **Format**: Alpaca instruction format
+- **Context Length**: 1024 tokens
+- **Precision**: FP16 for efficiency
+
+## 📈 Performance & Monitoring
+
+- ✅ **Automatic checkpointing** every 200 steps
+- ✅ **Supabase storage** backup
+- ✅ **Training logs** with loss tracking
+- ✅ **Smoke testing** for validation
+
+## 🐳 Docker Deployment
+
+```dockerfile
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
+# Optimized for SimplePod GPU environments
+```
+
+Run with:
+```bash
+docker build -t jotica .
+docker run --gpus all -v $(pwd):/workspace jotica
+```
+
+## 🤝 Contributing
+
+1. Fork the repository on the `main` branch
+2. Create your feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request to `main`
+
+## 📋 Data Format
+
+### Training Data (bible_qa.jsonl)
+```json
+{
+  "instruction": "Explica Juan 1:1 con enfoque en la deidad del Verbo",
+  "input": "",
+  "output": "Juan 1:1 (RVA1909): \"En el principio era el Verbo...\"",
+  "topic": "cristología"
+}
+```
+
+### Biblical Verses
+```json
+{
+  "book": "Juan",
+  "chapter": 1,
+  "verse": 1,
+  "text": "En el principio era el Verbo, y el Verbo era con Dios..."
+}
+```
+
+## 🔧 Troubleshooting
+
+### Common Issues
+- **GPU Memory**: Reduce `BATCH_SIZE` if OOM errors occur
+- **API Limits**: Check OpenAI rate limits for embeddings
+- **Supabase**: Verify connection and storage permissions
+
+### Debug Mode
+```bash
+# Enable verbose logging
+export DEBUG=1
+bash scripts/train_lora.sh
+```
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- 📖 **Reina-Valera 1909** - Public domain biblical text
+- 🤗 **Hugging Face** - Transformers and PEFT libraries
+- 🦙 **Meta AI** - Llama model architecture
+- ☁️ **Supabase** - Vector database and storage
+
+---
+
+<div align="center">
+
+**Made with ❤️ for Biblical AI Research**
+
+[⭐ Star this repo](https://github.com/SwStudioAI/jotica) • [🐛 Report Bug](https://github.com/SwStudioAI/jotica/issues) • [💡 Request Feature](https://github.com/SwStudioAI/jotica/issues)
+
+</div>
 python src/ingest/create_embeddings.py
 ```
 
