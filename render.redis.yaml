@@ -1,3 +1,6 @@
+# 🚀 Render.yaml with Redis - Full Configuration
+# Use this if you need Redis for job queuing
+
 services:
   # 🚀 Jotica Bible API Service
   - type: web
@@ -19,24 +22,8 @@ services:
         value: /opt/render/project/src/models/.cache
       - key: SUPABASE_BUCKET
         value: jotica-models
-      - key: SUPABASE_DATA_BUCKET
-        value: jotica-data
       - key: BASE_MODEL
         value: meta-llama/Llama-3-8B-Instruct
-      - key: RUN_NAME
-        value: jotica-bible-lora-001
-      - key: OUTPUT_DIR
-        value: /opt/render/project/src/checkpoints
-      - key: EPOCHS
-        value: "2"
-      - key: BATCH_SIZE
-        value: "1"
-      - key: LR
-        value: "2e-4"
-      - key: SAVE_STEPS
-        value: "200"
-      - key: SAVE_TOTAL
-        value: "3"
       - key: MAX_SEQ_LEN
         value: "512"
         
@@ -48,3 +35,30 @@ services:
       name: jotica-models
       mountPath: /opt/render/project/src/models
       sizeGB: 10
+
+  # 🔄 Background Training Worker  
+  - type: worker
+    name: jotica-training-worker
+    runtime: docker
+    plan: starter
+    region: oregon
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: ./
+    
+    # 🌍 Environment Variables
+    envVars:
+      - key: PYTHONPATH
+        value: /opt/render/project/src
+      - key: WORKER_MODE
+        value: "true"
+      - key: BASE_MODEL
+        value: meta-llama/Llama-3-8B-Instruct
+
+  # 🗄️ Redis for Job Queue
+  - type: redis
+    name: jotica-redis
+    plan: starter
+    region: oregon
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []  # Empty array allows all IPs within Render network
