@@ -1,0 +1,86 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Models and large files
+models/*.bin
+models/*.safetensors
+models/.cache/
+*.pkl
+*.joblib
+
+# Logs
+logs/*.log
+logs/*.txt
+*.log
+
+# Data (keep structure, ignore content)
+data/bible_rva1909/*.json
+data/raw_text/*.txt
+data/embeddings/*.pkl
+data/embeddings/*.npy
+
+# Generated datasets
+datasets/*.json
+datasets/*.jsonl
+datasets/*.parquet
+
+# Wandb
+wandb/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
