@@ -1,0 +1,117 @@
+# 🚀 Docker ignore for Render.com deployment
+# Optimizes build speed and reduces image size
+
+# 📝 Documentation
+README.md
+*.md
+LICENSE
+CHANGELOG*
+docs/
+.github/
+
+# 🔧 Development files
+.git/
+.gitignore
+.env*
+!.env.example
+.vscode/
+.idea/
+*.code-workspace
+
+# 📊 Data directories (large files)
+data/
+datasets/
+logs/
+models/
+*.jsonl
+*.json
+*.txt
+*.csv
+*.parquet
+
+# 🐍 Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# 📦 Virtual environments
+venv/
+ENV/
+env/
+.env
+
+# 🧪 Testing
+.tox/
+.coverage
+.pytest_cache/
+.coverage.*
+htmlcov/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# 📈 Jupyter Notebooks
+.ipynb_checkpoints
+*.ipynb
+
+# 🔍 IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 💻 OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 🏗️ Build artifacts
+*.tar.gz
+*.zip
+*.rar
+
+# 📋 Render specific ignores
+render.simple.yaml
+render.redis.yaml
+RENDER_DEPLOY.md
+
+# 🛠️ Scripts not needed in container
+scripts/bootstrap_simplepod.sh
+scripts/ingest_bible.sh
+scripts/train_lora.sh
+
+# 📊 Large model files
+*.bin
+*.safetensors
+*.h5
+*.ckpt
+*.pth
+
+# 🔄 Git files
+.git
+.gitignore
+.gitattributes

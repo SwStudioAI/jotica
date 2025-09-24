@@ -2,7 +2,7 @@ transformers>=4.44.0
 datasets
 accelerate
 peft
-bitsandbytes; platform_system == "Linux"
+torch>=2.0.0
 openai>=1.40.0
 supabase>=2.4.0
 python-dotenv
