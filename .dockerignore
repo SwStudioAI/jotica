@@ -1,33 +1,34 @@
 # 🚀 Docker ignore for Render.com deployment
 # Optimizes build speed and reduces image size
 
-# 📝 Documentation
+# 📝 Documentation (keep essential files)
 README.md
-*.md
 LICENSE
 CHANGELOG*
 docs/
 .github/
+RENDER_DEPLOY.md
 
 # 🔧 Development files
 .git/
 .gitignore
-.env*
-!.env.example
+.env
+.env.local
+.env.production
 .vscode/
 .idea/
 *.code-workspace
 
-# 📊 Data directories (large files)
-data/
-datasets/
+# 📊 Large data directories (but keep structure)
+data/bible_rva1909/
+data/refs/
+data/raw_text/
+data/embeddings/
 logs/
 models/
-*.jsonl
-*.json
-*.txt
-*.csv
-*.parquet
+datasets/*.jsonl
+datasets/*.json
+datasets/*.parquet
 
 # 🐍 Python cache
 __pycache__/
@@ -56,7 +57,6 @@ MANIFEST
 venv/
 ENV/
 env/
-.env
 
 # 🧪 Testing
 .tox/
@@ -73,14 +73,7 @@ coverage.xml
 .ipynb_checkpoints
 *.ipynb
 
-# 🔍 IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# 💻 OS generated files
+#  OS generated files
 .DS_Store
 .DS_Store?
 ._*
@@ -94,12 +87,11 @@ Thumbs.db
 *.zip
 *.rar
 
-# 📋 Render specific ignores
+# 📋 Alternative Render configs
 render.simple.yaml
 render.redis.yaml
-RENDER_DEPLOY.md
 
-# 🛠️ Scripts not needed in container
+# 🛠️ Local scripts (not needed in container)
 scripts/bootstrap_simplepod.sh
 scripts/ingest_bible.sh
 scripts/train_lora.sh
@@ -111,7 +103,9 @@ scripts/train_lora.sh
 *.ckpt
 *.pth
 
-# 🔄 Git files
-.git
-.gitignore
-.gitattributes
+# Keep essential files by NOT ignoring them:
+# - Dockerfile (needed for build)
+# - requirements.txt (needed for pip install) 
+# - render.yaml (needed for Render)
+# - src/ directory (application code)
+# - .env.example (template)
