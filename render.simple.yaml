@@ -1,0 +1,26 @@
+# 🚀 Simple Render.yaml - Web Service Only
+# Use this if you only need the API service
+
+services:
+  - type: web
+    name: jotica-api
+    runtime: docker
+    plan: starter
+    region: oregon
+    branch: main
+    dockerfilePath: ./Dockerfile
+    
+    envVars:
+      - key: PYTHONPATH
+        value: /opt/render/project/src
+      - key: BASE_MODEL
+        value: meta-llama/Llama-3-8B-Instruct
+      - key: MAX_SEQ_LEN
+        value: "512"
+        
+    healthCheckPath: /health
+    
+    disk:
+      name: jotica-models
+      mountPath: /opt/render/project/src/models
+      sizeGB: 5
