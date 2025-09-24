@@ -1,0 +1,140 @@
+services:
+  # 🚀 Jotica Bible LoRA Training Service
+  - type: web
+    name: jotica-bible-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    region: oregon
+    branch: main
+    
+    # 🔧 Build Configuration
+    buildCommand: |
+      echo "Building Jotica Bible LoRA Training Platform..."
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      
+    # 🏃‍♂️ Start Command
+    startCommand: |
+      echo "Starting Jotica API server..."
+      python -m src.api.server
+      
+    # 🌍 Environment Variables
+    envVars:
+      - key: PYTHONPATH
+        value: /opt/render/project/src
+      - key: TRANSFORMERS_CACHE
+        value: /opt/render/project/src/models/.cache
+      - key: HF_HOME
+        value: /opt/render/project/src/models/.cache
+      - key: OPENAI_API_KEY
+        sync: false  # Set in Render dashboard
+      - key: SUPABASE_URL
+        sync: false  # Set in Render dashboard
+      - key: SUPABASE_SERVICE_ROLE
+        sync: false  # Set in Render dashboard
+      - key: SUPABASE_BUCKET
+        value: jotica-models
+      - key: SUPABASE_DATA_BUCKET
+        value: jotica-data
+      - key: BASE_MODEL
+        value: meta-llama/Llama-3-8B-Instruct
+      - key: RUN_NAME
+        value: jotica-bible-lora-001
+      - key: OUTPUT_DIR
+        value: /opt/render/project/src/checkpoints
+      - key: EPOCHS
+        value: "2"
+      - key: BATCH_SIZE
+        value: "1"  # Reduced for Render limits
+      - key: LR
+        value: "2e-4"
+      - key: SAVE_STEPS
+        value: "200"
+      - key: SAVE_TOTAL
+        value: "3"
+      - key: MAX_SEQ_LEN
+        value: "512"  # Reduced for memory limits
+        
+    # 🏥 Health Check
+    healthCheckPath: /health
+    
+    # 📁 Persistent Disk for Models
+    disk:
+      name: jotica-models
+      mountPath: /opt/render/project/src/models
+      sizeGB: 10
+
+  # 🔄 Background Training Worker  
+  - type: worker
+    name: jotica-training-worker
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: standard
+    region: oregon
+    branch: main
+    
+    # 🚀 Worker Command
+    startCommand: |
+      echo "Starting Jotica Training Worker..."
+      # Wait for manual trigger or scheduled training
+      while true; do
+        echo "Training worker ready. Waiting for jobs..."
+        sleep 3600  # Check every hour
+      done
+      
+    # 🌍 Environment Variables (same as web service)
+    envVars:
+      - key: PYTHONPATH
+        value: /opt/render/project/src
+      - key: WORKER_MODE
+        value: "true"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE
+        sync: false
+      - key: BASE_MODEL
+        value: meta-llama/Llama-3-8B-Instruct
+      - key: OUTPUT_DIR
+        value: /opt/render/project/src/checkpoints
+        
+    # 📁 Shared Model Storage
+    disk:
+      name: jotica-models
+      mountPath: /opt/render/project/src/models
+      sizeGB: 10
+
+  # 🗄️ Redis for Job Queue (Optional)
+  - type: redis
+    name: jotica-redis
+    plan: starter
+    region: oregon
+    maxmemoryPolicy: allkeys-lru
+
+# 🔗 Database Configuration
+databases:
+  # Note: Using external Supabase, no need for internal DB
+  
+# 📝 Additional Configuration
+buildFilter:
+  paths:
+    - src/**
+    - requirements.txt
+    - Dockerfile
+    - scripts/**
+  ignoredPaths:
+    - README.md
+    - LICENSE
+    - .git/**
+    - data/**  # Large data files
+    
+# 🚨 Alerts
+alerts:
+  - type: cpu
+    name: High CPU Usage
+    value: 80
+  - type: memory  
+    name: High Memory Usage
+    value: 90
