@@ -64,12 +64,85 @@ if __name__ == "__main__":
     )
 
     trainer = Trainer(model=model, args=targs, train_dataset=ds, data_collator=collator)
+    
+    # Training with automatic checkpoint backup
+    print(f"🚀 Starting LoRA training: {args.run_name}")
+    print(f"   Model: {args.base_model}")
+    print(f"   Dataset: {len(ds)} samples")
+    print(f"   Epochs: {args.epochs}")
+    print(f"   Batch size: {args.batch_size}")
+    print(f"   Output: {args.output_dir}")
+    
     try:
+        # Start training
         trainer.train()
+        print("✅ Training completed successfully!")
+        
+    except KeyboardInterrupt:
+        print("⚠️ Training interrupted by user")
+        
+    except Exception as e:
+        print(f"❌ Training failed: {str(e)}")
+        
     finally:
+        print("\n📦 Saving final checkpoint...")
+        
+        # Save model and tokenizer
         trainer.save_model(args.output_dir)
         tok.save_pretrained(args.output_dir)
-        tar = f"/workspace/jotica_ckpt_{time.strftime('%Y%m%d-%H%M%S')}.tar.gz"
-        zip_dir(args.output_dir, tar)
-        upload_ckpt(tar, prefix=f"{args.run_name}/")
-        print("[OK] Checkpoint subido a Supabase Storage")
+        print(f"✅ Model saved to: {args.output_dir}")
+        
+        # Create training info file
+        training_info = {
+            "run_name": args.run_name,
+            "base_model": args.base_model,
+            "training_params": {
+                "epochs": args.epochs,
+                "batch_size": args.batch_size,
+                "learning_rate": args.lr,
+                "max_seq_len": args.max_seq_len,
+                "save_steps": args.save_steps
+            },
+            "dataset_info": {
+                "samples": len(ds),
+                "source": args.data
+            },
+            "completion_time": time.strftime('%Y-%m-%d %H:%M:%S'),
+            "model_files": os.listdir(args.output_dir)
+        }
+        
+        info_file = os.path.join(args.output_dir, "training_info.json")
+        with open(info_file, "w", encoding="utf-8") as f:
+            import json
+            json.dump(training_info, f, indent=2, ensure_ascii=False)
+        
+        # Create compressed archive
+        timestamp = time.strftime('%Y%m%d_%H%M%S')
+        tar_filename = f"jotica_{args.run_name}_{timestamp}.tar.gz"
+        tar_path = os.path.join("/tmp" if os.path.exists("/tmp") else args.output_dir, tar_filename)
+        
+        print(f"📦 Creating archive: {tar_filename}")
+        zip_dir(args.output_dir, tar_path)
+        
+        # Upload to Supabase with detailed logging
+        print("☁️ Uploading to Supabase Storage...")
+        upload_result = upload_ckpt(tar_path, prefix=f"{args.run_name}/")
+        
+        if upload_result.get("success"):
+            print("🎉 Checkpoint successfully backed up to Supabase!")
+            print(f"   Remote path: {upload_result['remote_path']}")
+            print(f"   File size: {upload_result['file_size'] / (1024*1024):.2f} MB")
+            
+            # Clean up local tar file if upload successful
+            try:
+                os.remove(tar_path)
+                print("🧹 Local archive cleaned up")
+            except Exception:
+                pass
+                
+        else:
+            print(f"⚠️ Supabase upload failed: {upload_result.get('error')}")
+            print(f"   Archive saved locally: {tar_path}")
+        
+        print("\n✅ Training pipeline completed!")
+        print("🔗 Check your models at: https://app.supabase.com/project/jmtrhukymrhzrmqmgrfq/storage/buckets")
